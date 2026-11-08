@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Expense Tracker Command Center 🐾</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- Include Chart.js from CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+<!-- 🌸 Scattered Background Cats & Flowers -->
+<div class="bg-decorations">
+    <div class="deco-item deco-1">🐱</div>
+    <div class="deco-item deco-2">🌸</div>
+    <div class="deco-item deco-3">🌷</div>
+    <div class="deco-item deco-4">🐾</div>
+    <div class="deco-item deco-5">🐱</div>
+    <div class="deco-item deco-6">🌸</div>
+    <div class="deco-item deco-7">🐾</div>
+    <div class="deco-item deco-8">🌷</div>
+</div>
+
+<div class="container">
+    <header>
+        <h1>🌸 Expense Tracker Command Center 🐾</h1>
+        <p class="subtitle">Manage your ledger, watch your savings bloom, and keep your finances cozy.</p>
+    </header>
+
+    <!-- Quick-Add Command Bar -->
+    <div class="quick-bar">
+        <strong>🐱 Quick Command:</strong>
+        <input type="text" id="quickInput" placeholder="Quick-Add (e.g., 500 gas for innova, 1200 dito internet)">
+        <button class="btn btn-quick" onclick="handleQuickAdd()">⚡ Quick Parse & Add</button>
+    </div>
+
+    <!-- Navigation Tabs -->
+    <div class="tabs">
+        <button class="tab-btn active" onclick="switchTab(event, 'dashboardTab')">📊 Dashboard & Ledger</button>
+        <button class="tab-btn" onclick="switchTab(event, 'trendsTab')">📈 Monthly Trends</button>
+        <button class="tab-btn" onclick="switchTab(event, 'savingsTab')">🌷 Savings Goals</button>
+    </div>
+
+    <!-- TAB 1: Dashboard & Ledger -->
+    <div id="dashboardTab" class="tab-content active">
+        <div class="dashboard-grid">
+            <div class="card">
+                <h3>📜 Transaction Ledger</h3>
+                <div class="ledger-controls">
+                    <input type="text" id="searchBox" class="form-control" placeholder="🔍 Search description or category..." oninput="renderTable()">
+                    <select id="categoryFilter" class="form-control" onchange="renderTable()">
+                        <option value="All Categories">All Categories</option>
+                        <option value="Development/Tools">Development/Tools</option>
+                        <option value="Utilities (Internet)">Utilities (Internet)</option>
+                        <option value="Fuel/Transport">Fuel/Transport</option>
+                        <option value="Subscriptions">Subscriptions</option>
+                        <option value="Fitness/Supplements">Fitness/Supplements</option>
+                        <option value="Food & Dining">Food & Dining</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+                
+                <!-- Responsive Table Wrapper -->
+                <div class="table-responsive">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Category</th>
+                                <th>Description</th>
+                                <th>Amount (₱)</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="transactionTableBody"></tbody>
+                    </table>
+                </div>
+
+                <div id="totalSummary" class="total-summary"></div>
+            </div>
+
+            <div class="card chart-card">
+                <h3>🌸 Spending Breakdown</h3>
+                <div class="chart-container">
+                    <canvas id="spendingPieChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- TAB 2: Monthly Trends -->
+    <div id="trendsTab" class="tab-content">
+        <div class="card">
+            <h3>📊 Month-over-Month Burn Rate Analysis</h3>
+            <div class="trends-metrics">
+                <div id="currentMonthBox" class="card trend-box cur-box"></div>
+                <div id="prevMonthBox" class="card trend-box prev-box"></div>
+            </div>
+            <div id="trendSummaryText" class="trend-summary-text"></div>
+            <button class="btn btn-primary" onclick="updateTrends()">🔄 Refresh Trends</button>
+        </div>
+    </div>
+
+    <!-- TAB 3: Savings Goals -->
+    <div id="savingsTab" class="tab-content">
+        <div class="card">
+            <div class="savings-header">
+                <h3>🌷 Savings Goals & Piggy Bank</h3>
+                <button class="btn btn-success" onclick="openNewGoalModal()">+ Create New Goal</button>
+            </div>
+            <div class="goal-grid" id="goalsContainer"></div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal for New Savings Goal -->
+<div id="goalModal" class="modal-overlay">
+    <div class="card modal-card">
+        <h3>🌸 Create New Savings Goal</h3>
+        <div class="form-group">
+            <label>Goal Name</label>
+            <input type="text" id="modalGoalName" class="form-control" placeholder="e.g., PC Upgrade">
+        </div>
+        <div class="form-group">
+            <label>Target Amount (₱)</label>
+            <input type="number" id="modalGoalTarget" class="form-control" placeholder="15000">
+        </div>
+        <div class="form-group">
+            <label>Deadline</label>
+            <input type="text" id="modalGoalDeadline" class="form-control" placeholder="Dec 2026">
+        </div>
+        <div class="modal-actions">
+            <button class="btn btn-secondary" onclick="closeNewGoalModal()">Cancel</button>
+            <button class="btn btn-success" onclick="saveNewGoal()">Save Goal</button>
+        </div>
+    </div>
+</div>
+
+<!-- Modal for Edit Transaction -->
+<div id="editModal" class="modal-overlay">
+    <div class="card modal-card">
+        <h3>🐱 Edit Transaction</h3>
+        <input type="hidden" id="editTxId">
+        <div class="form-group" style="margin-top: 10px;">
+            <label>Date</label>
+            <input type="date" id="editTxDate" class="form-control">
+        </div>
+        <div class="form-group">
+            <label>Category</label>
+            <select id="editTxCategory" class="form-control">
+                <option value="Development/Tools">Development/Tools</option>
+                <option value="Utilities (Internet)">Utilities (Internet)</option>
+                <option value="Fuel/Transport">Fuel/Transport</option>
+                <option value="Subscriptions">Subscriptions</option>
+                <option value="Fitness/Supplements">Fitness/Supplements</option>
+                <option value="Food & Dining">Food & Dining</option>
+                <option value="Other">Other</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label>Description</label>
+            <input type="text" id="editTxDesc" class="form-control">
+        </div>
+        <div class="form-group">
+            <label>Amount (₱)</label>
+            <input type="number" id="editTxAmount" class="form-control">
+        </div>
+        <div class="modal-actions">
+            <button class="btn btn-secondary" onclick="closeEditModal()">Cancel</button>
+            <button class="btn btn-success" onclick="saveEditedTransaction()">Save Changes</button>
+        </div>
+    </div>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>

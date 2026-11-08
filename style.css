@@ -1,0 +1,434 @@
+:root {
+    --bg-color: #f7f4f9;        
+    --card-bg: #ffffff;
+    --text-color: #4a4556;      
+    --primary: #a29bfe;         
+    --primary-hover: #6c5ce7;
+    --accent: #fd79a8;          
+    --success: #55efc4;         
+    --danger: #ff7675;          
+    --warning: #ffeaa7;         
+    --border-color: #ece5f0;    
+    --shadow: 0 10px 25px rgba(162, 155, 254, 0.1);
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Inter", sans-serif;
+    -webkit-tap-highlight-color: transparent; /* Removes mobile tap flash */
+}
+
+body {
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    padding: env(safe-area-inset-top, 20px) 16px env(safe-area-inset-bottom, 20px) 16px;
+    min-height: 100vh;
+    position: relative;
+    overflow-x: hidden;
+}
+
+/* 🌸 Scattered Background Cats & Flowers */
+.bg-decorations {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    pointer-events: none;
+    z-index: 0;
+    overflow: hidden;
+}
+
+.deco-item {
+    position: absolute;
+    animation: sway 6s ease-in-out infinite;
+    opacity: 0.35;
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.05));
+}
+
+.deco-1 { top: 6%; left: 4%; animation-delay: 0s; font-size: 32px; }
+.deco-2 { top: 12%; right: 6%; animation-delay: 1s; font-size: 36px; }
+.deco-3 { top: 40%; left: 2%; animation-delay: 2s; font-size: 30px; }
+.deco-4 { top: 55%; right: 4%; animation-delay: 1.5s; font-size: 34px; }
+.deco-5 { top: 82%; left: 6%; animation-delay: 3s; font-size: 38px; }
+.deco-6 { top: 88%; right: 10%; animation-delay: 2.5s; font-size: 32px; }
+.deco-7 { top: 25%; left: 10%; animation-delay: 0.5s; font-size: 28px; }
+.deco-8 { top: 70%; right: 15%; animation-delay: 2.2s; font-size: 30px; }
+
+@keyframes sway {
+    0%, 100% { transform: translateY(0) rotate(0deg); }
+    50% { transform: translateY(-8px) rotate(4deg); }
+}
+
+.container {
+    max-width: 1100px;
+    margin: 0 auto;
+    position: relative;
+    z-index: 1;
+    width: 100%;
+}
+
+header {
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+header h1 {
+    font-size: 24px;
+    font-weight: 800;
+    color: #2d2342;
+    margin-bottom: 4px;
+}
+
+.subtitle {
+    font-size: 13px;
+    color: #8c829e;
+}
+
+/* Quick-Add Bar - Fully Responsive Stack for Phones */
+.quick-bar {
+    background: #ffffff;
+    padding: 14px;
+    border-radius: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 20px;
+    box-shadow: var(--shadow);
+    border: 2px solid var(--border-color);
+}
+
+.quick-bar input {
+    width: 100%;
+    padding: 12px 14px;
+    font-size: 16px; /* 16px prevents iOS auto-zoom on input focus */
+    border: 2px solid var(--border-color);
+    border-radius: 12px;
+    outline: none;
+    background: #fcfbfe;
+}
+
+.quick-bar input:focus {
+    border-color: var(--primary);
+}
+
+/* Buttons */
+.btn {
+    padding: 12px 18px;
+    font-weight: 700;
+    font-size: 14px;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    color: white;
+    transition: transform 0.15s ease, opacity 0.2s;
+    width: 100%; /* Full width for easy mobile tapping */
+    text-align: center;
+}
+
+.btn:active {
+    transform: scale(0.98);
+}
+
+.btn-quick { background-color: var(--accent); }
+.btn-success { background-color: var(--success); color: #2d423b; }
+.btn-danger { background-color: var(--danger); }
+.btn-primary { background-color: var(--primary); }
+.btn-secondary { background-color: #b2bec3; }
+
+/* Tabs - Clean pill switcher */
+.tabs {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 20px;
+}
+
+.tab-btn {
+    background: #ffffff;
+    border: 2px solid var(--border-color);
+    padding: 12px;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    color: #8c829e;
+    border-radius: 14px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.02);
+    width: 100%;
+    text-align: center;
+    transition: all 0.2s ease;
+}
+
+.tab-btn.active {
+    background: var(--primary);
+    color: white;
+    border-color: var(--primary);
+    box-shadow: 0 6px 15px rgba(162, 155, 254, 0.3);
+}
+
+.tab-content { display: none; }
+.tab-content.active { display: block; animation: fadeIn 0.3s ease; }
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(4px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Dashboard Grid */
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: 1fr; /* Default stack for mobile */
+    gap: 20px;
+}
+
+.card {
+    background: var(--card-bg);
+    padding: 16px;
+    border-radius: 20px;
+    border: 2px solid var(--border-color);
+    box-shadow: var(--shadow);
+    overflow: hidden;
+}
+
+.card h3 {
+    color: #2d2342;
+    font-size: 17px;
+    margin-bottom: 12px;
+}
+
+/* Ledger & Tables */
+.ledger-controls {
+    margin: 12px 0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.form-control {
+    width: 100%;
+    padding: 12px;
+    border: 2px solid var(--border-color);
+    border-radius: 12px;
+    font-size: 14px;
+    outline: none;
+    background: #fcfbfe;
+}
+
+.form-control:focus {
+    border-color: var(--primary);
+}
+
+/* Smooth horizontal scroll container for tables on small screens */
+.table-responsive {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    margin-top: 5px;
+}
+
+table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0 8px;
+    min-width: 500px; /* Ensures columns never get unreadably squished */
+}
+
+th {
+    padding: 10px;
+    text-align: left;
+    font-size: 12px;
+    color: #8c829e;
+    background: transparent;
+    border-bottom: 2px solid var(--border-color);
+}
+
+td {
+    padding: 12px 10px;
+    background: #fdfcff;
+    border-top: 1px solid var(--border-color);
+    border-bottom: 1px solid var(--border-color);
+    font-size: 13px;
+}
+
+td:first-child { border-left: 1px solid var(--border-color); border-top-left-radius: 10px; border-bottom-left-radius: 10px; }
+td:last-child { border-right: 1px solid var(--border-color); border-top-right-radius: 10px; border-bottom-right-radius: 10px; }
+
+.total-summary {
+    margin-top: 15px;
+    font-weight: 700;
+    color: #2d2342;
+    font-size: 14px;
+}
+
+/* Chart Styles */
+.chart-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.chart-container {
+    position: relative;
+    width: 100%;
+    max-width: 280px;
+    margin: 10px auto;
+}
+
+/* Trends Tab */
+.trends-metrics {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin: 15px 0;
+}
+
+.trend-box { border-radius: 16px; padding: 15px; }
+.cur-box { background: #eef2ff; border-color: #c7d2fe; }
+.prev-box { background: #f1f5f9; border-color: #cbd5e1; }
+
+.trend-summary-text {
+    font-weight: 700;
+    margin-bottom: 15px;
+    color: var(--primary-hover);
+    font-size: 14px;
+}
+
+/* Savings Goals Tab */
+.savings-header {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+.goal-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 15px;
+}
+
+.goal-card {
+    background: #ffffff;
+    padding: 18px;
+    border-radius: 18px;
+    border: 2px solid var(--border-color);
+    box-shadow: var(--shadow);
+}
+
+.goal-card h4 {
+    color: #2d2342;
+    font-size: 16px;
+}
+
+.progress-bar {
+    width: 100%;
+    height: 14px;
+    background: #f1ede6;
+    border-radius: 7px;
+    overflow: hidden;
+    margin: 12px 0;
+}
+
+.progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #55efc4, #00b894);
+    border-radius: 7px;
+    width: 0%;
+    transition: width 0.4s ease;
+}
+
+.goal-meta {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    color: #8c829e;
+    margin-bottom: 15px;
+}
+
+.goal-actions { display: flex; gap: 8px; }
+
+/* Modals */
+.modal-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(74, 69, 86, 0.4);
+    backdrop-filter: blur(4px);
+    justify-content: center;
+    align-items: center;
+    z-index: 100;
+    padding: 16px;
+}
+
+.modal-card { width: 100%; max-width: 380px; border-radius: 20px; }
+
+.modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+
+/* ==========================================
+   TABLET & LAPTOP ADAPTABILITY (Media Queries)
+   ================================---------- */
+
+@media(min-width: 650px) {
+    /* Horizontal tabs and search filters for larger screens */
+    .tabs {
+        flex-direction: row;
+        justify-content: center;
+    }
+    .tab-btn {
+        width: auto;
+        padding: 10px 22px;
+    }
+
+    .quick-bar {
+        flex-direction: row;
+        align-items: center;
+    }
+    .quick-bar .btn {
+        width: auto;
+    }
+
+    .ledger-controls {
+        flex-direction: row;
+    }
+
+    .savings-header {
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .goal-grid {
+        grid-template-columns: repeat(2, 1fr); /* 2 columns for tablets */
+    }
+
+    .trends-metrics {
+        flex-direction: row;
+    }
+}
+
+@media(min-width: 1024px) {
+    /* Desktop layout side-by-side */
+    .dashboard-grid {
+        grid-template-columns: 2fr 1fr; /* Ledger on left, Pie Chart on right */
+    }
+
+    .goal-grid {
+        grid-template-columns: repeat(3, 1fr); /* 3 columns for desktop/large tablets */
+    }
+    
+    body {
+        padding: 30px 20px;
+    }
+}
