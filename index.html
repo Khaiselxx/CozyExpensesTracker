@@ -8,6 +8,44 @@
     <link rel="stylesheet" href="style.css">
     <!-- Include Chart.js from CDN -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .peeping-cat-left {
+            position: fixed;
+            left: -30px;
+            bottom: -25px; /* Pulls the container down to eliminate the extra whitespace */
+            z-index: 100;
+            line-height: 0;
+            cursor: pointer;
+        }   
+        .peeping-cat-left lottie-player {
+            display: block;
+            margin-bottom: 0;
+            margin-left: 0;
+        }
+        .cat-bubble-right {
+            position: absolute;
+            left: 170px;
+            bottom: 120px;
+            background: white;
+            color: #6c5ce7;
+            padding: 12px 18px;
+            border-radius: 16px;
+            font-size: 13px;
+            font-weight: 700;
+            box-shadow: 0 6px 22px rgba(108, 92, 231, 0.22);
+            border: 2px solid #f0e6ff;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(10px);
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            white-space: nowrap;
+        }
+        .peeping-cat-left:hover .cat-bubble-right {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+    </style>
 </head>
 <body>
 
@@ -302,6 +340,20 @@
             <button class="btn btn-danger" style="flex: 1; padding: 8px;" onclick="confirmLogout()">Yes, Logout</button>
         </div>
     </div>
+</div>
+
+<!-- 🐱 Peeping Cat (Lower-Left Corner) -->
+<div class="peeping-cat-left">
+    <div class="cat-bubble-right">Your ledger is looking purrfect today, master! 🌸🐾</div>
+    <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
+    <lottie-player 
+        src="https://lottie.host/3183c315-3fce-4c93-a07e-50a5c46495c8/MEgIc1V9wK.json" 
+        background="transparent" 
+        speed="1" 
+        style="width: 200px; height: 200px;" 
+        loop 
+        autoplay>
+    </lottie-player>
 </div>
 
 <script type="module" src="script.js"></script>
