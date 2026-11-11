@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Nekko Paws 🐾</title>
+    <link rel="icon" type="image/png" sizes="50x50" href="CET.png">
+    <link rel="stylesheet" href="style.css">
+    <!-- Include Chart.js from CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+<!-- 🌸 Scattered Background Cats & Flowers -->
+<div class="bg-decorations">
+    <div class="deco-item deco-1">🐱</div>
+    <div class="deco-item deco-2">🌸</div>
+    <div class="deco-item deco-3">🌷</div>
+    <div class="deco-item deco-4">🐾</div>
+    <div class="deco-item deco-5">🐱</div>
+    <div class="deco-item deco-6">🌸</div>
+    <div class="deco-item deco-7">🐾</div>
+    <div class="deco-item deco-8">🌷</div>
+</div>
+
+<div class="container">
+    <header>
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+        <span id="userDisplayEmail" style="font-size: 12px; color: #8c829e; font-weight: 700;"></span>
+        <button class="btn btn-danger" style="padding: 5px 12px; font-size: 11px; width: auto;" onclick="openLogoutModal()">🚪 Logout</button>
+    </div>
+    <h1>🌸 Cozy Expense Tracker 🐾</h1>
+    <p class="subtitle">Manage your ledger, watch your savings bloom, and keep your finances cozy.</p>
+</header>
+
+    <!-- Quick-Add Command Bar -->
+    <div class="quick-bar">
+        <strong>🐱 Quick Command:</strong>
+        <input type="text" id="quickInput" placeholder="Quick-Add (e.g., 500 gas for innova, 1200 dito internet)">
+        <button class="btn btn-quick" onclick="handleQuickAdd()">⚡ Quick Parse & Add</button>
+    </div>
+
+    <!-- Navigation Tabs -->
+    <div class="tabs">
+        <button class="tab-btn active" onclick="switchTab(event, 'dashboardTab')">📊 Dashboard & Ledger</button>
+        <button class="tab-btn" onclick="switchTab(event, 'trendsTab')">📈 Monthly Trends</button>
+        <button class="tab-btn" onclick="switchTab(event, 'savingsTab')">🌷 Savings Goals</button>
+    </div>
+
+    <!-- TAB 1: Dashboard & Ledger -->
+    <div id="dashboardTab" class="tab-content active">
+        <div class="dashboard-grid">
+            <div class="card">
+                <h3>📜 Transaction Ledger</h3>
+                <div class="ledger-controls">
+                    <input type="text" id="searchBox" class="form-control" placeholder="🔍 Search description or category..." oninput="renderTable()">
+                    <select id="categoryFilter" class="form-control" onchange="renderTable()">
+                        <option value="All Categories">All Categories</option>
+                        <option value="Development/Tools">Development/Tools</option>
+                        <option value="Utilities (Internet)">Utilities (Internet)</option>
+                        <option value="Fuel/Transport">Fuel/Transport</option>
+                        <option value="Subscriptions">Subscriptions</option>
+                        <option value="Fitness/Supplements">Fitness/Supplements</option>
+                        <option value="Food & Dining">Food & Dining</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+                
+                <!-- Responsive Table Wrapper -->
+                <div class="table-responsive">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Category</th>
+                                <th>Description</th>
+                                <th>Amount (₱)</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="transactionTableBody"></tbody>
+                    </table>
+                </div>
+
+                <div id="totalSummary" class="total-summary"></div>
+            </div>
+
+            <!-- Right Column: Chart & Budget Guardrails -->
+            <div style="display: flex; flex-direction: column; gap: 20px;">
+                <div class="card chart-card">
+                    <h3>🌸 Spending Breakdown</h3>
+                    <div class="chart-container">
+                        <canvas id="spendingPieChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- 🛡️ Smart Budget Guard Card -->
+                <div class="card">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                        <h3>🛡️ Budget Guardrails</h3>
+                        <button class="btn btn-primary" style="padding: 4px 10px; font-size: 11px; width: auto;" onclick="openBudgetModal()">⚙️ Set Limits</button>
+                    </div>
+                    <div id="budgetGuardContainer"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- TAB 2: Monthly Trends -->
+    <div id="trendsTab" class="tab-content">
+        <div class="card">
+            <h3>📊 Month-over-Month Burn Rate Analysis</h3>
+            <div class="trends-metrics">
+                <div id="currentMonthBox" class="card trend-box cur-box"></div>
+                <div id="prevMonthBox" class="card trend-box prev-box"></div>
+            </div>
+            <div id="trendSummaryText" class="trend-summary-text"></div>
+            <button class="btn btn-primary" onclick="updateTrends()">🔄 Refresh Trends</button>
+        </div>
+    </div>
+
+    <!-- TAB 3: Savings Goals -->
+    <div id="savingsTab" class="tab-content">
+        <div class="card">
+            <div class="savings-header">
+                <h3>🌷 Savings Goals & Piggy Bank</h3>
+                <button class="btn btn-success" onclick="openNewGoalModal()">+ Create New Goal</button>
+            </div>
+            <div class="goal-grid" id="goalsContainer"></div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal for New Savings Goal -->
+<div id="goalModal" class="modal-overlay">
+    <div class="card modal-card">
+        <h3>🌸 Create New Savings Goal</h3>
+        <div class="form-group">
+            <label>Goal Name</label>
+            <input type="text" id="modalGoalName" class="form-control" placeholder="e.g., PC Upgrade">
+        </div>
+        <div class="form-group">
+            <label>Target Amount (₱)</label>
+            <input type="number" id="modalGoalTarget" class="form-control" placeholder="15000">
+        </div>
+        <div class="form-group">
+            <label>Deadline</label>
+            <input type="text" id="modalGoalDeadline" class="form-control" placeholder="Dec 2026">
+        </div>
+        <div class="modal-actions">
+            <button class="btn btn-secondary" onclick="closeNewGoalModal()">Cancel</button>
+            <button class="btn btn-success" onclick="saveNewGoal()">Save Goal</button>
+        </div>
+    </div>
+</div>
+
+<!-- Modal for Edit Transaction -->
+<div id="editModal" class="modal-overlay">
+    <div class="card modal-card">
+        <h3>🐱 Edit Transaction</h3>
+        <input type="hidden" id="editTxId">
+        <div class="form-group" style="margin-top: 10px;">
+            <label>Date</label>
+            <input type="date" id="editTxDate" class="form-control">
+        </div>
+        <div class="form-group">
+            <label>Category</label>
+            <select id="editTxCategory" class="form-control">
+                <option value="Development/Tools">Development/Tools</option>
+                <option value="Utilities (Internet)">Utilities (Internet)</option>
+                <option value="Fuel/Transport">Fuel/Transport</option>
+                <option value="Subscriptions">Subscriptions</option>
+                <option value="Fitness/Supplements">Fitness/Supplements</option>
+                <option value="Food & Dining">Food & Dining</option>
+                <option value="Other">Other</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label>Description</label>
+            <input type="text" id="editTxDesc" class="form-control">
+        </div>
+        <div class="form-group">
+            <label>Amount (₱)</label>
+            <input type="number" id="editTxAmount" class="form-control">
+        </div>
+        <div class="modal-actions">
+            <button class="btn btn-secondary" onclick="closeEditModal()">Cancel</button>
+            <button class="btn btn-success" onclick="saveEditedTransaction()">Save Changes</button>
+        </div>
+    </div>
+</div>
+
+<!-- Modal for Setting Category Budgets -->
+<div id="budgetModal" class="modal-overlay">
+    <div class="card modal-card" style="max-height: 85vh; overflow-y: auto;">
+        <h3>🛡️ Set Monthly Category Budgets</h3>
+        <p class="subtitle" style="margin-bottom: 15px;">Define monthly spending caps (₱) to trigger cozy guard warnings.</p>
+        
+        <div class="form-group" style="margin-bottom: 10px;">
+            <label>Food & Dining Limit</label>
+            <input type="number" id="budgetFood" class="form-control" placeholder="5000">
+        </div>
+        <div class="form-group" style="margin-bottom: 10px;">
+            <label>Fuel/Transport Limit</label>
+            <input type="number" id="budgetFuel" class="form-control" placeholder="4000">
+        </div>
+        <div class="form-group" style="margin-bottom: 10px;">
+            <label>Utilities (Internet) Limit</label>
+            <input type="number" id="budgetUtilities" class="form-control" placeholder="2000">
+        </div>
+        <div class="form-group" style="margin-bottom: 10px;">
+            <label>Development/Tools Limit</label>
+            <input type="number" id="budgetDev" class="form-control" placeholder="3000">
+        </div>
+        <div class="form-group" style="margin-bottom: 10px;">
+            <label>Fitness/Supplements Limit</label>
+            <input type="number" id="budgetFitness" class="form-control" placeholder="2500">
+        </div>
+        <div class="form-group" style="margin-bottom: 10px;">
+            <label>Subscriptions Limit</label>
+            <input type="number" id="budgetSubs" class="form-control" placeholder="1500">
+        </div>
+        <div class="form-group" style="margin-bottom: 10px;">
+            <label>Other Limit</label>
+            <input type="number" id="budgetOther" class="form-control" placeholder="1000">
+        </div>
+
+        <div class="modal-actions" style="margin-top: 15px;">
+            <button class="btn btn-secondary" onclick="closeBudgetModal()">Cancel</button>
+            <button class="btn btn-success" onclick="saveBudgets()">Save Limits</button>
+        </div>
+    </div>
+</div>
+
+<!-- 🐾 Cozy Cat Alert Card Modal -->
+<div id="cozyAlertModal" class="modal-overlay" style="display: none; align-items: center; justify-content: center; z-index: 200;">
+    <div class="card modal-card" style="text-align: center; position: relative; padding: 25px 20px;">
+        <button onclick="closeCozyAlert()" style="position: absolute; top: 12px; right: 12px; background: none; border: none; font-size: 16px; cursor: pointer; color: #8c829e; font-weight: bold;">✕</button>
+        
+        <!-- 🐱 Custom Cat with Exclamation Mark Icon -->
+        <div style="position: relative; display: inline-block; font-size: 42px; margin-bottom: 8px;">
+            <span>🐱</span>
+            <span id="cozyAlertBadge" style="position: absolute; top: -4px; right: -6px; background: var(--danger); color: white; font-size: 14px; font-weight: 900; width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 2px solid white; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">!</span>
+        </div>
+
+        <h3 id="cozyAlertTitle" style="color: #2d2342; margin-bottom: 8px;">Budget Warning</h3>
+        <p id="cozyAlertMessage" class="subtitle" style="margin-bottom: 20px; font-size: 14px; color: #4a4556;"></p>
+        <button class="btn btn-primary" onclick="closeCozyAlert()" style="width: 100%;">Got it, meow! 🌸</button>
+    </div>
+</div>
+
+<!-- 🐾 Delete Confirmation Modal Card -->
+<div id="deleteConfirmModal" class="modal-overlay" style="display: none; align-items: center; justify-content: center; z-index: 200;">
+    <div class="card modal-card" style="text-align: center; position: relative; padding: 25px 20px;">
+        <button onclick="closeDeleteModal()" style="position: absolute; top: 12px; right: 12px; background: none; border: none; font-size: 16px; cursor: pointer; color: #8c829e; font-weight: bold;">✕</button>
+        
+        <!-- 🐱 Cat with Question Badge Icon -->
+        <div style="position: relative; display: inline-block; font-size: 42px; margin-bottom: 8px;">
+            <span>🐱</span>
+            <span style="position: absolute; top: -4px; right: -6px; background: #e17055; color: white; font-size: 14px; font-weight: 900; width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 2px solid white; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">?</span>
+        </div>
+
+        <h3 style="color: #2d2342; margin-bottom: 8px;">Delete Transaction?</h3>
+        <p class="subtitle" style="margin-bottom: 20px; font-size: 14px; color: #4a4556;">Are you sure you want to remove this transaction from your ledger? It can't be undone, meow!</p>
+        
+        <div class="modal-actions" style="display: flex; gap: 10px;">
+            <button class="btn btn-secondary" onclick="closeDeleteModal()" style="flex: 1;">Cancel</button>
+            <button class="btn btn-danger" id="confirmDeleteBtn" style="flex: 1;">Yes, Delete</button>
+        </div>
+    </div>
+</div>
+
+<!-- 🐾 Savings Goal Delete Confirmation Modal -->
+<div id="deleteGoalModal" class="modal-overlay" style="display: none; align-items: center; justify-content: center; z-index: 200;">
+    <div class="card modal-card" style="text-align: center; position: relative; padding: 25px 20px;">
+        <button onclick="closeDeleteGoalModal()" style="position: absolute; top: 12px; right: 12px; background: none; border: none; font-size: 16px; cursor: pointer; color: #8c829e; font-weight: bold;">✕</button>
+        
+        <!-- 🐱 Cat with Question Badge Icon -->
+        <div style="position: relative; display: inline-block; font-size: 42px; margin-bottom: 8px;">
+            <span>🐱</span>
+            <span style="position: absolute; top: -4px; right: -6px; background: #e17055; color: white; font-size: 14px; font-weight: 900; width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 2px solid white; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">?</span>
+        </div>
+
+        <h3 style="color: #2d2342; margin-bottom: 8px;">Delete Savings Goal?</h3>
+        <p class="subtitle" style="margin-bottom: 20px; font-size: 14px; color: #4a4556;">Are you sure you want to remove this savings goal? It can't be undone, meow!</p>
+        
+        <div class="modal-actions" style="display: flex; gap: 10px;">
+            <button class="btn btn-secondary" onclick="closeDeleteGoalModal()" style="flex: 1;">Cancel</button>
+            <button class="btn btn-danger" id="confirmDeleteGoalBtn" style="flex: 1;">Yes, Delete</button>
+        </div>
+    </div>
+</div>
+
+<!-- Logout Confirmation Modal -->
+<div id="logoutModal" class="modal-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); justify-content: center; align-items: center; z-index: 1000;">
+    <div class="card modal-card" style="background: white; padding: 25px; border-radius: 16px; width: 100%; max-width: 320px; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.1);">
+        <div style="font-size: 40px; margin-bottom: 8px;">🐱💤</div>
+        <h3 style="color: var(--primary); margin-bottom: 8px;">Leaving so soon?</h3>
+        <p style="color: #8c829e; font-size: 13px; margin-bottom: 20px;">Are you sure you want to log out of your cozy command center?</p>
+        <div style="display: flex; gap: 10px;">
+            <button class="btn" style="flex: 1; background: #e0d8ef; color: #4a3b5c; padding: 8px;" onclick="closeLogoutModal()">Cancel</button>
+            <button class="btn btn-danger" style="flex: 1; padding: 8px;" onclick="confirmLogout()">Yes, Logout</button>
+        </div>
+    </div>
+</div>
+
+<script type="module" src="script.js"></script>
+</body>
+</html>
