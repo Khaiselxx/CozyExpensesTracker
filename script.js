@@ -13,7 +13,10 @@ window.openNewGoalModal = openNewGoalModal;
 window.closeNewGoalModal = closeNewGoalModal;
 window.saveNewGoal = saveNewGoal;
 window.depositGoal = depositGoal;
+window.closeDepositModal = closeDepositModal;
+window.confirmDeposit = confirmDeposit;
 window.deleteGoal = deleteGoal;
+window.closeDeleteGoalModal = closeDeleteGoalModal;
 window.openBudgetModal = openBudgetModal;
 window.closeBudgetModal = closeBudgetModal;
 window.saveBudgets = saveBudgets;
@@ -55,6 +58,8 @@ let budgets = {
 
 let spendingChart = null; // Global chart reference
 let transactionToDeleteId = null; // Tracks transaction pending deletion
+let activeGoalIdForDeposit = null; // Tracks savings goal pending deposit
+let goalToDeleteId = null; // Tracks savings goal pending deletion
 
 // Protect index.html: Kick to login if not authenticated or email unverified
 onAuthStateChanged(auth, async user => {
@@ -212,37 +217,30 @@ function handleQuickAdd() {
 function inferCategory(text) {
     let lower = text.toLowerCase();
 
-    // 1. Food & Dining
     if (lower.match(/(steak|meat|beef|pork|chicken|coffee|latte|espresso|food|lunch|dinner|breakfast|burger|pizza|jollibee|mcdo|starbucks|restaurant|cafe|snack|grocery|groceries|supermarket|water|drinks|boba)/)) {
         return 'Food & Dining';
     }
     
-    // 2. Fuel & Transport
     if (lower.match(/(gas|gasoline|diesel|petrol|transport|parking|toll|innova|grab|taxi|angkas|moveit|bus|train|maintenance|car)/)) {
         return 'Fuel/Transport';
     }
 
-    // 3. Utilities (Internet, Electricity, Water, Phone)
     if (lower.match(/(internet|wifi|dito|pldt|globe|smart|electricity|meralco|water|bill|bills|phone|load)/)) {
         return 'Utilities (Internet)';
     }
 
-    // 4. Development & Tools
     if (lower.match(/(domain|hosting|server|cloudflare|github|vscode|intellij|plugin|api|software|tool|code|dev|hardware|pc|upgrade)/)) {
         return 'Development/Tools';
     }
 
-    // 5. Fitness & Supplements
     if (lower.match(/(gym|supplements|creatine|whey|protein|workout|fitness|barbell|weights|membership)/)) {
         return 'Fitness/Supplements';
     }
 
-    // 6. Subscriptions
     if (lower.match(/(netflix|spotify|youtube|subscription|sub|prime|chatgpt|gemini|openai)/)) {
         return 'Subscriptions';
     }
 
-    // Default fallback category if no match is found
     return 'Other';
 }
 
@@ -318,7 +316,6 @@ function renderTable() {
         totalSummaryEl.innerText = `🌸 Filtered Total: ₱${total.toLocaleString('en-US', {minimumFractionDigits: 2})} (${filtered.length} items shown)`;
     }
 
-    // Update Chart.js Pie Chart
     updateSpendingChart(breakdown);
 }
 
@@ -330,7 +327,6 @@ function updateSpendingChart(breakdownData) {
     let labels = Object.keys(breakdownData);
     let data = Object.values(breakdownData);
 
-    // Distinct pastel colors for each slice
     let colorPalette = [
         '#a29bfe', '#fd79a8', '#55efc4', '#ffeaa7', '#74b9ff', '#fab1a0', '#e84393', '#00b894'
     ];
@@ -434,7 +430,7 @@ if (confirmDelBtn) {
 // Trends calculation
 function updateTrends() {
     let now = new Date();
-    let curMonthStr = now.toISOString().slice(0, 7); // YYYY-MM
+    let curMonthStr = now.toISOString().slice(0, 7);
     let prevDate = new Date(now.getFullYear(), now.getMonth() - 1, 1);
     let prevMonthStr = prevDate.toISOString().slice(0, 7);
 
@@ -515,23 +511,44 @@ function saveNewGoal() {
     }
 }
 
+// 🪙 Cozy Deposit Modal Handlers (Replaces browser prompt)
 function depositGoal(id) {
-    let amountStr = prompt("🐾 Enter amount to deposit (₱):", "500");
-    if (amountStr) {
-        let amt = parseFloat(amountStr);
-        if (amt > 0) {
-            let goal = goals.find(g => g.id === id);
-            if (goal) {
-                goal.current += amt;
-                saveData();
-            }
-        }
+    activeGoalIdForDeposit = id;
+    let input = document.getElementById('depositAmountInput');
+    if (input) input.value = '500';
+    
+    let modal = document.getElementById('depositModal');
+    if (modal) modal.style.display = 'flex';
+    if (input) {
+        input.focus();
+        input.select();
     }
 }
 
-let goalToDeleteId = null; // Tracks savings goal pending deletion
+function closeDepositModal() {
+    let modal = document.getElementById('depositModal');
+    if (modal) modal.style.display = 'none';
+    activeGoalIdForDeposit = null;
+}
 
-// Replace the old deleteGoal function with this:
+function confirmDeposit() {
+    let input = document.getElementById('depositAmountInput');
+    let amt = parseFloat(input.value);
+
+    if (amt > 0 && activeGoalIdForDeposit !== null) {
+        let goal = goals.find(g => g.id === activeGoalIdForDeposit);
+        if (goal) {
+            goal.current += amt;
+            saveData();
+        }
+    } else {
+        alert("🐾 Meow! Please enter a valid deposit amount.");
+        return;
+    }
+    
+    closeDepositModal();
+}
+
 function deleteGoal(id) {
     goalToDeleteId = id;
     let modal = document.getElementById('deleteGoalModal');
@@ -544,7 +561,6 @@ function closeDeleteGoalModal() {
     if (modal) modal.style.display = 'none';
 }
 
-// Attach event listener for the confirmation button
 let confirmGoalDelBtn = document.getElementById('confirmDeleteGoalBtn');
 if (confirmGoalDelBtn) {
     confirmGoalDelBtn.addEventListener('click', function() {
@@ -556,9 +572,6 @@ if (confirmGoalDelBtn) {
     });
 }
 
-// Make sure to expose the close function globally if needed
-window.closeDeleteGoalModal = closeDeleteGoalModal;
-
 // 🛡️ Smart Budget Guardrails Engine
 function renderBudgetGuards() {
     let container = document.getElementById('budgetGuardContainer');
@@ -566,7 +579,7 @@ function renderBudgetGuards() {
     container.innerHTML = '';
 
     let now = new Date();
-    let curMonthStr = now.toISOString().slice(0, 7); // YYYY-MM
+    let curMonthStr = now.toISOString().slice(0, 7);
 
     let monthlySpend = {};
     transactions.forEach(t => {

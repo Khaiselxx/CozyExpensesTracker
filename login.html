@@ -212,6 +212,45 @@
             font-weight: 600;
             min-height: 18px;
         }
+
+        .peeping-cat-left {
+            position: fixed;
+            left: -30px;
+            bottom: 0;
+            z-index: 100;
+            line-height: 0;
+            cursor: pointer;
+        }
+        .peeping-cat-left lottie-player {
+            display: block;
+            margin-bottom: 0;
+            margin-left: 0;
+        }
+        .cat-bubble-right {
+            position: absolute;
+            left: 170px;
+            bottom: 120px;
+            background: white;
+            color: #6c5ce7;
+            padding: 12px 18px;
+            border-radius: 16px;
+            font-size: 13px;
+            font-weight: 700;
+            box-shadow: 0 6px 22px rgba(108, 92, 231, 0.22);
+            border: 2px solid #f0e6ff;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(10px);
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            white-space: nowrap;
+        }
+        .peeping-cat-left:hover .cat-bubble-right {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+    </style>
+
     </style>
 </head>
 <body>
@@ -326,6 +365,20 @@
 
         <button class="btn btn-primary" onclick="closeResetSuccessModal()" style="width: 100%;">OK</button>
     </div>
+</div>
+
+<!-- 🐱 Peeping Cat (Lower-Left Corner) -->
+<div class="peeping-cat-left">
+    <div class="cat-bubble-right">Welcome back to Nekko, meow! 🌸🐾</div>
+    <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
+    <lottie-player 
+        src="https://lottie.host/594a6d7f-4869-4153-9b17-c226047c570c/SidpZ10Y72.json" 
+        background="transparent" 
+        speed="1" 
+        style="width: 200px; height: 200px;" 
+        loop 
+        autoplay>
+    </lottie-player>
 </div>
 
     <script type="module" src="auth.js"></script>
