@@ -278,6 +278,13 @@
             <input type="password" id="loginPassword" class="form-control" placeholder="••••••••">
         </div>
 
+        <div style="display: flex; justify-content: space-between; align-items: center; font-size: 12px; margin-bottom: 15px;">
+            <label style="display: flex; align-items: center; gap: 6px; cursor: pointer; color: #6c5ce7; font-weight: 600;">
+                <input type="checkbox" id="rememberMe" style="accent-color: #6c5ce7; width: 15px; height: 15px; cursor: pointer;"> Remember Me
+            </label>
+            <a href="#" onclick="handlePasswordReset(); return false;" style="color: #8c829e; text-decoration: none; transition: color 0.2s;" onmouseover="this.style.color='#6c5ce7'" onmouseout="this.style.color='#8c829e'">Forgot Password?</a>
+        </div>
+
         <div class="btn-group">
             <button class="btn btn-primary" onclick="handleLogin()">Sign In</button>
             <button class="btn btn-success" onclick="handleSignup()">Create Account</button>
@@ -285,6 +292,41 @@
 
         <p id="authError"></p>
     </div>
+
+    <!-- 🐾 Forgot Password Modal -->
+<div id="forgotPasswordModal" class="modal-overlay" style="display: none; align-items: center; justify-content: center; z-index: 1000; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5);">
+    <div class="card modal-card" style="background: rgba(255, 255, 255, 0.95); padding: 30px 20px; border-radius: 20px; text-align: center; position: relative; max-width: 360px; width: 90%; box-shadow: 0 15px 35px rgba(162, 155, 254, 0.25); border: 2px solid #f0e6ff;">
+        
+        <div style="font-size: 46px; margin-bottom: 10px;">🔑🐾</div>
+        <h3 style="color: #6c5ce7; margin-bottom: 8px; font-size: 20px;">Reset Password</h3>
+        <p class="subtitle" style="margin-bottom: 15px; font-size: 13px; color: #8c829e;">
+            Enter your account email below, and we'll send you a cozy link to reset your password, meow!
+        </p>
+        
+        <div class="form-group" style="margin-bottom: 20px;">
+            <input type="email" id="resetEmailInput" class="form-control" placeholder="your@email.com">
+        </div>
+
+        <div class="modal-actions" style="display: flex; gap: 10px;">
+            <button class="btn btn-secondary" onclick="closeForgotPasswordModal()" style="flex: 1; background: #e2e8f0; color: #4a5568;">Cancel</button>
+            <button class="btn btn-primary" onclick="submitPasswordReset()" style="flex: 1;">Send Link</button>
+        </div>
+    </div>
+</div>
+
+<!-- 🐾 Password Reset Success Confirmation Modal -->
+<div id="resetSuccessModal" class="modal-overlay" style="display: none; align-items: center; justify-content: center; z-index: 1000; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5);">
+    <div class="card modal-card" style="background: rgba(255, 255, 255, 0.95); padding: 30px 20px; border-radius: 20px; text-align: center; position: relative; max-width: 360px; width: 90%; box-shadow: 0 15px 35px rgba(162, 155, 254, 0.25); border: 2px solid #f0e6ff;">
+        
+        <div style="font-size: 46px; margin-bottom: 10px;">🌸✉️</div>
+        <h3 style="color: #6c5ce7; margin-bottom: 8px; font-size: 20px;">Email Sent!</h3>
+        <p class="subtitle" style="margin-bottom: 20px; font-size: 13px; color: #8c829e;">
+            Password reset email sent! Check your inbox, meow! 🐾
+        </p>
+
+        <button class="btn btn-primary" onclick="closeResetSuccessModal()" style="width: 100%;">OK</button>
+    </div>
+</div>
 
     <script type="module" src="auth.js"></script>
 </body>

@@ -5,10 +5,13 @@ import {
     createUserWithEmailAndPassword,
     sendEmailVerification,
     onAuthStateChanged,
-    signOut 
+    signOut,
+    setPersistence,
+    browserLocalPersistence,
+    browserSessionPersistence,
+    sendPasswordResetEmail
 } from "https://www.gstatic.com/firebasejs/13.2.0/firebase-auth.js";
 
-// Firebase Configuration
 const firebaseConfig = {
     apiKey: "AIzaSyCfHM-HSU-emecmX3L4nGXZgG1Z0mQSpwA",
     authDomain: "cozy-expense-tracker-cfe23.firebaseapp.com",
@@ -24,7 +27,6 @@ const auth = getAuth(app);
 
 let verificationInterval = null;
 
-// Helper to display waiting modal and poll Firebase for verification status
 function startVerificationPolling(user) {
     let modal = document.getElementById('emailVerifyModal');
     if (modal) modal.style.display = 'flex';
@@ -33,11 +35,11 @@ function startVerificationPolling(user) {
     
     verificationInterval = setInterval(async () => {
         try {
-            await user.reload(); // Refresh state from Firebase servers
+            await user.reload();
             if (user.emailVerified) {
                 clearInterval(verificationInterval);
                 if (modal) modal.style.display = 'none';
-                window.location.href = "index.html"; // Success! Go to dashboard
+                window.location.href = "index.html";
             }
         } catch (err) {
             console.log("Polling error:", err.message);
@@ -45,35 +47,38 @@ function startVerificationPolling(user) {
     }, 3000);
 }
 
-// Check auth state on page load
 onAuthStateChanged(auth, user => {
     if (user) {
         if (user.emailVerified) {
             window.location.href = "index.html";
         } else {
-            // Logged in but unverified (e.g., page refresh)
             startVerificationPolling(user);
         }
     }
 });
 
-function handleLogin() {
+async function handleLogin() {
     let email = document.getElementById('loginEmail').value.trim();
     let pass = document.getElementById('loginPassword').value.trim();
+    let rememberMe = document.getElementById('rememberMe').checked;
     let errorEl = document.getElementById('authError');
 
-    signInWithEmailAndPassword(auth, email, pass)
-        .then((userCredential) => {
-            let user = userCredential.user;
-            if (!user.emailVerified) {
-                startVerificationPolling(user);
-            } else {
-                window.location.href = "index.html";
-            }
-        })
-        .catch(error => {
-            if (errorEl) errorEl.innerText = "🐾 Meow! " + error.message;
-        });
+    try {
+        // Set Firebase session persistence based on "Remember Me"
+        const persistenceType = rememberMe ? browserLocalPersistence : browserSessionPersistence;
+        await setPersistence(auth, persistenceType);
+
+        const userCredential = await signInWithEmailAndPassword(auth, email, pass);
+        let user = userCredential.user;
+        
+        if (!user.emailVerified) {
+            startVerificationPolling(user);
+        } else {
+            window.location.href = "index.html";
+        }
+    } catch (error) {
+        if (errorEl) errorEl.innerText = "🐾 Meow! " + error.message;
+    }
 }
 
 function handleSignup() {
@@ -89,11 +94,7 @@ function handleSignup() {
     createUserWithEmailAndPassword(auth, email, pass)
         .then(async (userCredential) => {
             let user = userCredential.user;
-            
-            // Send Firebase verification email
             await sendEmailVerification(user);
-            
-            // Open waiting modal and begin polling
             startVerificationPolling(user);
         })
         .catch(error => {
@@ -101,7 +102,46 @@ function handleSignup() {
         });
 }
 
-// Resend Verification Email Button
+// 🔑 Password Reset Modal Handlers
+window.handlePasswordReset = function() {
+    let mainEmail = document.getElementById('loginEmail').value.trim();
+    let resetInput = document.getElementById('resetEmailInput');
+    if (resetInput) resetInput.value = mainEmail;
+
+    let modal = document.getElementById('forgotPasswordModal');
+    if (modal) modal.style.display = 'flex';
+};
+
+window.closeForgotPasswordModal = function() {
+    let modal = document.getElementById('forgotPasswordModal');
+    if (modal) modal.style.display = 'none';
+};
+
+window.closeResetSuccessModal = function() {
+    let modal = document.getElementById('resetSuccessModal');
+    if (modal) modal.style.display = 'none';
+};
+
+window.submitPasswordReset = async function() {
+    let email = document.getElementById('resetEmailInput').value.trim();
+    let errorEl = document.getElementById('authError');
+
+    if (!email) {
+        alert("🐾 Meow! Please enter your email address.");
+        return;
+    }
+
+    try {
+        await sendPasswordResetEmail(auth, email);
+        closeForgotPasswordModal();
+        let successModal = document.getElementById('resetSuccessModal');
+        if (successModal) successModal.style.display = 'flex';
+        if (errorEl) errorEl.innerText = "";
+    } catch (error) {
+        alert("🐾 Meow! " + error.message);
+    }
+};
+
 window.resendVerificationEmail = async function() {
     let user = auth.currentUser;
     if (user) {
@@ -114,7 +154,6 @@ window.resendVerificationEmail = async function() {
     }
 };
 
-// Cancel & Cleanup Handler (Deletes temporary account so email isn't burned)
 window.cancelVerification = async function() {
     if (verificationInterval) clearInterval(verificationInterval);
     
@@ -122,7 +161,6 @@ window.cancelVerification = async function() {
     if (user && !user.emailVerified) {
         try {
             await user.delete();
-            console.log("Unverified temporary account cleaned up.");
         } catch (error) {
             console.log("Cleanup error:", error.message);
         }
@@ -133,6 +171,5 @@ window.cancelVerification = async function() {
     if (modal) modal.style.display = 'none';
 };
 
-// Bind functions globally for HTML onclick handlers
 window.handleLogin = handleLogin;
 window.handleSignup = handleSignup;
